@@ -4,7 +4,7 @@
 
 Скачан и установлен Terraform. Версия выбрана из ветки 1.12.x
 
-![terraform --version](shots/term/01-version.png)
+![terraform --version](shots/01-version.png)
 
 ---
 
@@ -14,7 +14,7 @@
 
 Скачаны `kreuzwerker/docker v4.5.0` и `hashicorp/random v3.9.0`.
 
-![terraform init](shots/term/03-init.png)
+![terraform init](shots/03-init.png)
 
 
 ### 2. В каком файле допустимо хранить секреты?
@@ -31,7 +31,7 @@ personal.auto.tfvars
 То есть этот файл не попадает в git, а Terraform подхватывает его автоматически. Туда и кладут
 логины, пароли, токены.
 
-![.gitignore](shots/term/02-gitignore.png)
+![.gitignore](shots/02-gitignore.png)
 
 ### 3. Секрет в state-файле
 
@@ -39,7 +39,7 @@ personal.auto.tfvars
 terraform apply -auto-approve
 ```
 
-![apply random_password](shots/term/04-apply-random.png)
+![apply random_password](shots/04-apply-random.png)
 
 **Ответ: ключ `result`, значение `j1Zf0F1C11M4UkFR`**
 
@@ -48,17 +48,17 @@ terraform apply -auto-approve
 "result": "j1Zf0F1C11M4UkFR",
 ```
 
-![секрет в state](shots/term/05-state-secret.png)
+![секрет в state](shots/05-state-secret.png)
 
 ### 4. `terraform validate` и ошибки
 
 Снимаем комментарий с блока (строки `/*` и `*/`):
 
-![блок раскомментирован](shots/term/06-uncommented.png)
+![блок раскомментирован](shots/06-uncommented.png)
 
 `terraform validate` находит две синтаксические ошибки:
 
-![ошибки validate](shots/term/07-validate-errors.png)
+![ошибки validate](shots/07-validate-errors.png)
 
 **Ошибка 1 - `resource "docker_image" {`: у блока нет второй метки.**
 Блок `resource` всегда описывается двумя метками - тип и имя (`All resource blocks must have
@@ -70,7 +70,7 @@ terraform apply -auto-approve
 
 После исправления меток проявляется третья ошибка:
 
-![ошибка ссылки](shots/term/08-validate-ref.png)
+![ошибка ссылки](shots/08-validate-ref.png)
 
 **Ошибка 3 - `random_password.random_string_FAKE.resulT`.** Здесь сразу два дефекта:
 ресурса с именем `random_string_FAKE` в модуле нет, а атрибут называется `result` - HCL чувствителен
@@ -95,7 +95,7 @@ resource "docker_container" "nginx" {      # было "1nginx" - имя не м�
 }
 ```
 
-![validate успешен](shots/term/09-validate-ok.png)
+![validate успешен](shots/09-validate-ok.png)
 
 ### 5. Выполнение кода
 
@@ -103,9 +103,9 @@ resource "docker_container" "nginx" {      # было "1nginx" - имя не м�
 terraform apply -auto-approve
 ```
 
-![apply](shots/term/10-apply-ok.png)
+![apply](shots/10-apply-ok.png)
 
-![docker ps](shots/term/11-docker-ps.png)
+![docker ps](shots/11-docker-ps.png)
 
 ### 6. Переименование контейнера в `hello_world`
 
@@ -117,13 +117,13 @@ resource "docker_container" "nginx" {
 }
 ```
 
-![apply hello_world](shots/term/12-hello-world-apply.png)
+![apply hello_world](shots/12-hello-world-apply.png)
 
 Обращаем внимание на план: `1 to add, 0 to change, 1 to destroy`. Имя контейнера -
 неизменяемый атрибут, поэтому Terraform **уничтожил старый контейнер и создал
 новый**, а не переименовал его.
 
-![docker ps hello_world](shots/term/13-docker-ps-hello.png)
+![docker ps hello_world](shots/13-docker-ps-hello.png)
 
 **`-auto-approve`.** Ключ пропускает интерактивное подтверждение плана -
 Terraform применяет изменения сразу, не показав их человеку на утверждение. В примере
@@ -139,7 +139,7 @@ Terraform применяет изменения сразу, не показав 
 terraform destroy -auto-approve
 ```
 
-![destroy](shots/term/14-destroy.png)
+![destroy](shots/14-destroy.png)
 
 Все три ресурса удалены.
 
@@ -159,7 +159,7 @@ terraform destroy -auto-approve
 
 Файл остаётся на месте, но список `resources` пуст.
 
-![state пуст](shots/term/15-tfstate-empty.png)
+![state пуст](shots/15-tfstate-empty.png)
 
 ### 8. Почему при этом не был удалён docker-образ `nginx:latest`
 
@@ -181,4 +181,4 @@ resource "docker_image" "nginx" {
 Именно поэтому при `destroy` Terraform убрал образ только из state, а `docker images nginx`
 по-прежнему показывает `nginx:latest`:
 
-![образ остался](shots/term/16-image-kept.png)
+![образ остался](shots/16-image-kept.png)
